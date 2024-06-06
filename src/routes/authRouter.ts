@@ -5,7 +5,7 @@ import dotenv from 'dotenv'
 import { comparePassword, createPassword } from '../utils/hashPassword'
 import { createTokens } from '../utils/createToken'
 import { validateData } from '../middleware/validationMiddleware'
-import { loginSchema, registerSchema } from '../schemas/auth.Schema'
+import { loginSchema, registerSchema } from '../schemas/authSchema'
 
 dotenv.config()
 
