@@ -1,9 +1,10 @@
-import { DataTypes } from 'sequelize'
+import { DataTypes, Model, ModelCtor } from 'sequelize'
 import { sequelize } from '../db/connection'
 import { createPassword } from '../utils/hashPassword'
 
-const User = sequelize.define(
-  'users',
+class User extends Model {}
+
+User.init(
   {
     id: {
       primaryKey: true,
@@ -25,6 +26,8 @@ const User = sequelize.define(
     },
   },
   {
+    sequelize,
+    tableName: 'users',
     hooks: {
       beforeCreate(user) {
         user.setDataValue('password', createPassword(user.dataValues.password))

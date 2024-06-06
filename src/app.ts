@@ -7,6 +7,15 @@ import authRouter from './routes/authRouter'
 
 import { sequelize } from './db/connection'
 
+//! how move in express.d.ts
+declare global {
+  namespace Express {
+    interface Request {
+      userInfo: any
+    }
+  }
+}
+
 dotenv.config()
 
 const app = express()

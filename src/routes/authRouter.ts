@@ -5,6 +5,7 @@ import dotenv from 'dotenv'
 import { createTokens } from '../utils/createToken'
 import { validateData } from '../middleware/validationMiddleware'
 import { loginSchema, registerSchema } from '../schemas/authSchema'
+import { authMiddleware } from '../middleware/authMiddleware'
 
 dotenv.config()
 
@@ -38,15 +39,14 @@ router.post('/register', validateData(registerSchema), async (req, res) => {
   res.json({ ...createTokens({ id: 'id' }), newUser })
 })
 
-router.post('/me', validateData(registerSchema), async (req, res) => {
-  const newUser = await User.create(req.body)
+router.post('/me', authMiddleware(), async (req, res) => {
+  const user = await User.findByPk(21)
+  res.json({ user })
+})
 
-  // if (!user && comparePassword(req.body.password, user!.password!)) {
-  //   return res.json({ error: 'User not found' })
-  // }
-
-  //!! add newUSer id
-  res.json({ ...createTokens({ id: 'id' }), newUser })
+router.post('/refresh', authMiddleware(), async (req, res) => {
+  const user = await User.findByPk(21)
+  res.json({ ...createTokens({ id: 'id' }), user })
 })
 
 router.all('/*', (req, res) => {
