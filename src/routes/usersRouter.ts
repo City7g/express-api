@@ -1,6 +1,5 @@
 import { Router } from 'express'
 import User from '../models/users'
-import { createPassword } from '../utils/hashPassword'
 import { validateData } from '../middleware/validationMiddleware'
 import { createUserSchema, updateUserSchema } from '../schemas/userSchema'
 
@@ -17,19 +16,20 @@ router.get('/:id(\\d+)', async (req, res) => {
 })
 
 router.post('/', validateData(createUserSchema), async (req, res) => {
-  req.body.password = createPassword(req.body.password)
-
   const newUser = await User.create(req.body)
 
   res.status(201).json(newUser)
 })
 
 router.put('/:id(\\d+)', validateData(updateUserSchema), async (req, res) => {
-  if (req.body.password) req.body.password = createPassword(req.body.password)
+  const id = +req.params.id
+  const user = await User.findByPk(id)
 
-  const updatedUser = await User.update(req.body, {
-    where: { id: req.params.id },
-  })
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' })
+  }
+
+  const updatedUser = user.update(req.body)
 
   res.status(200).json(updatedUser)
 })

@@ -2,7 +2,6 @@ import { Router } from 'express'
 import User from '../models/users'
 
 import dotenv from 'dotenv'
-import { comparePassword, createPassword } from '../utils/hashPassword'
 import { createTokens } from '../utils/createToken'
 import { validateData } from '../middleware/validationMiddleware'
 import { loginSchema, registerSchema } from '../schemas/authSchema'
@@ -29,8 +28,17 @@ router.post('/login', validateData(loginSchema), async (req, res) => {
 })
 
 router.post('/register', validateData(registerSchema), async (req, res) => {
-  if (req.body.password) req.body.password = createPassword(req.body.password)
+  const newUser = await User.create(req.body)
 
+  // if (!user && comparePassword(req.body.password, user!.password!)) {
+  //   return res.json({ error: 'User not found' })
+  // }
+
+  //!! add newUSer id
+  res.json({ ...createTokens({ id: 'id' }), newUser })
+})
+
+router.post('/me', validateData(registerSchema), async (req, res) => {
   const newUser = await User.create(req.body)
 
   // if (!user && comparePassword(req.body.password, user!.password!)) {
