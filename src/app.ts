@@ -29,6 +29,10 @@ app.use('/', (req, res) => {
   res.send('Hello world!')
 })
 
+app.all('/*', (req, res) => {
+  res.status(404).json({ message: 'Route not found' })
+})
+
 app.listen(3000, async () => {
   console.log('Start')
   try {

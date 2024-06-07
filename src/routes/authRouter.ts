@@ -1,7 +1,7 @@
 import { Router } from 'express'
-import User from '../models/users'
-
 import dotenv from 'dotenv'
+
+import User from '../models/users'
 import { createTokens } from '../utils/createToken'
 import { validateData } from '../middleware/validationMiddleware'
 import { loginSchema, registerSchema } from '../schemas/authSchema'
@@ -25,18 +25,22 @@ router.post('/login', validateData(loginSchema), async (req, res) => {
   //   return res.json({ error: 'User not found' })
   // }
 
-  res.json({ ...createTokens({ id: 'id' }), user })
+  res.json({ ...createTokens({ id: user.getDataValue('id') }), user })
 })
 
 router.post('/register', validateData(registerSchema), async (req, res) => {
-  const newUser = await User.create(req.body)
+  const [user, create] = await User.findOrCreate({
+    where: { email: req.body.email },
+    defaults: { ...req.body },
+  })
 
-  // if (!user && comparePassword(req.body.password, user!.password!)) {
-  //   return res.json({ error: 'User not found' })
-  // }
+  if (!create) {
+    return res.status(409).json({ message: 'Email already exists' })
+  }
 
-  //!! add newUSer id
-  res.json({ ...createTokens({ id: 'id' }), newUser })
+  res
+    .status(201)
+    .json({ ...createTokens({ id: user.getDataValue('id') }), user })
 })
 
 router.post('/me', authMiddleware(), async (req, res) => {
@@ -46,7 +50,7 @@ router.post('/me', authMiddleware(), async (req, res) => {
 
 router.post('/refresh', authMiddleware(), async (req, res) => {
   const user = await User.findByPk(21)
-  res.json({ ...createTokens({ id: 'id' }), user })
+  res.json({ ...createTokens({ id: user?.getDataValue('id') }), user })
 })
 
 router.all('/*', (req, res) => {

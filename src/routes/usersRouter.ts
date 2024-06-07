@@ -47,8 +47,4 @@ router.delete('/:id(\\d+)', async (req, res) => {
   res.sendStatus(204)
 })
 
-router.all('/*', (req, res) => {
-  res.status(404).json({ message: 'Route not found' })
-})
-
 export default router
