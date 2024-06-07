@@ -6,12 +6,12 @@ import { createUserSchema, updateUserSchema } from '../schemas/userSchema'
 const router = Router()
 
 router.get('/', async (req, res) => {
-  const users = await User.findAll({ attributes: { exclude: ['password'] } })
+  const users = await User.findAll()
   res.json(users)
 })
 
 router.get('/:id(\\d+)', async (req, res) => {
-  const user = await User.findByPk(1, { attributes: { exclude: ['password'] } })
+  const user = await User.findByPk(1)
   res.json(user)
 })
 

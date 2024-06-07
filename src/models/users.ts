@@ -2,7 +2,13 @@ import { DataTypes, Model, ModelCtor } from 'sequelize'
 import { sequelize } from '../db/connection'
 import { createPassword } from '../utils/hashPassword'
 
-class User extends Model {}
+class User extends Model {
+  toJSON() {
+    const attributes = { ...this.get() }
+    delete attributes.password
+    return attributes
+  }
+}
 
 User.init(
   {

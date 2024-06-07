@@ -11,7 +11,9 @@ export const validateData = (schema: z.ZodSchema<any, any>) => {
         const errorMessages = error.errors.map((issue: any) => ({
           message: `${issue.path.join('.')} is ${issue.message}`,
         }))
-        res.status(400).json({ message: 'Invalid data', errors: errorMessages })
+        res
+          .status(400)
+          .json({ message: 'Validation error', errors: errorMessages })
       } else {
         res.status(500).json({ message: 'Internal Server Error' })
       }
