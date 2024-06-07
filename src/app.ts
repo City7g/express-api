@@ -4,6 +4,7 @@ import dotenv from 'dotenv'
 
 import usersRouter from './routes/usersRouter'
 import authRouter from './routes/authRouter'
+import multer from 'multer'
 
 import { sequelize } from './db/connection'
 
@@ -18,12 +19,32 @@ declare global {
 
 dotenv.config()
 
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads')
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname)
+  },
+})
+
+const upload = multer({ storage })
+
 const app = express()
 
 app.use(bodyParser.json())
+app.use('/uploads', express.static('uploads'))
 
 app.use('/api/users', usersRouter)
 app.use('/api/auth', authRouter)
+
+app.post('/photo', upload.single('avatar'), (req, res, next) => {
+  console.log(req.file)
+
+  res.json({
+    file: req.file,
+  })
+})
 
 app.use('/', (req, res) => {
   res.send('Hello world!')

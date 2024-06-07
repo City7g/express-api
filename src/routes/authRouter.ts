@@ -21,10 +21,6 @@ router.post('/login', validateData(loginSchema), async (req, res) => {
     return res.json({ error: 'User not found' })
   }
 
-  // if (!user && comparePassword(req.body.password, user!.password!)) {
-  //   return res.json({ error: 'User not found' })
-  // }
-
   res.json({ ...createTokens({ id: user.getDataValue('id') }), user })
 })
 
