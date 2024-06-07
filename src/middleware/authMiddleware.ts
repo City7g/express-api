@@ -16,10 +16,10 @@ export const authMiddleware = () => {
 
     try {
       req.userInfo = jwt.verify(token, process.env.JWT_SECRET || 'secret')
-    } catch (error) {
-      res.status(403).json({ message: 'Access token is invalid' })
-    }
 
-    next()
+      next()
+    } catch (error) {
+      return res.status(403).json({ message: 'Access token is invalid' })
+    }
   }
 }

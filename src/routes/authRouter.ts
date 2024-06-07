@@ -1,11 +1,13 @@
 import { Router } from 'express'
 import dotenv from 'dotenv'
+import jwt from 'jsonwebtoken'
 
 import User from '../models/users'
-import { createTokens } from '../utils/createToken'
+import { createTokens, verifyToken } from '../utils/createToken'
 import { validateData } from '../middleware/validationMiddleware'
 import { loginSchema, registerSchema } from '../schemas/authSchema'
 import { authMiddleware } from '../middleware/authMiddleware'
+import { strict } from 'assert'
 
 dotenv.config()
 
@@ -14,7 +16,6 @@ const router = Router()
 router.post('/login', validateData(loginSchema), async (req, res) => {
   const user = await User.findOne({
     where: { email: req.body.email },
-    attributes: { exclude: ['password'] },
   })
 
   if (!user) {
@@ -40,17 +41,37 @@ router.post('/register', validateData(registerSchema), async (req, res) => {
 })
 
 router.post('/me', authMiddleware(), async (req, res) => {
-  const user = await User.findByPk(21)
+  const user = await User.findByPk(req.userInfo.id)
+
+  if (!user) {
+    res.status(401).json({ message: 'Access token is invalid' })
+  }
+
   res.json({ user })
 })
 
-router.post('/refresh', authMiddleware(), async (req, res) => {
-  const user = await User.findByPk(21)
-  res.json({ ...createTokens({ id: user?.getDataValue('id') }), user })
-})
+router.post('/refresh', async (req, res) => {
+  let data
 
-router.all('/*', (req, res) => {
-  res.sendStatus(404)
+  try {
+    data = verifyToken(req.body.refresh_token)
+  } catch (error) {
+    return res.status(401).json({ message: 'Access token is invalid' })
+  }
+
+  const id = typeof data !== 'string' ? data.id : null
+
+  if (!id) {
+    return res.status(401).json({ message: 'Access token is invalid' })
+  }
+
+  const user = await User.findByPk(id)
+
+  if (!user) {
+    return res.status(401).json({ message: 'Access token is invalid' })
+  }
+
+  res.json({ ...createTokens({ id: user.getDataValue('id') }), user })
 })
 
 export default router
