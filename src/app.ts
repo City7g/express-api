@@ -1,10 +1,12 @@
 import express from 'express'
 import bodyParser from 'body-parser'
+import cors from 'cors'
 import dotenv from 'dotenv'
+import mongoose from 'mongoose'
 
 import usersRouter from './routes/usersRouter'
 import authRouter from './routes/authRouter'
-import multer from 'multer'
+import filesRouter from './routes/filesRouter'
 
 import { sequelize } from './db/connection'
 
@@ -19,34 +21,17 @@ declare global {
 
 dotenv.config()
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads')
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + '-' + file.originalname)
-  },
-})
-
-const upload = multer({ storage })
-
 const app = express()
 
 app.use(bodyParser.json())
+app.use(cors())
 app.use('/uploads', express.static('uploads'))
 
 app.use('/api/users', usersRouter)
 app.use('/api/auth', authRouter)
+app.use('/api/files', filesRouter)
 
-app.post('/photo', upload.single('avatar'), (req, res, next) => {
-  console.log(req.file)
-
-  res.json({
-    file: req.file,
-  })
-})
-
-app.use('/', (req, res) => {
+app.get('/', (req, res) => {
   res.send('Hello world!')
 })
 
@@ -54,10 +39,11 @@ app.all('/*', (req, res) => {
   res.status(404).json({ message: 'Route not found' })
 })
 
-app.listen(3000, async () => {
+app.listen(8080, async () => {
   console.log('Start')
   try {
-    await sequelize.authenticate()
+    mongoose.set('debug', true)
+    await mongoose.connect(process.env.DB_MONGO || 'mongo')
     console.log('Connection has been established successfully.')
   } catch (error) {
     console.error('Unable to connect to the database:', error)

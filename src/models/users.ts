@@ -1,54 +1,44 @@
-import { DataTypes, Model, ModelCtor } from 'sequelize'
-import { sequelize } from '../db/connection'
+import mongoose from 'mongoose'
 import { createPassword } from '../utils/hashPassword'
+import { faker } from '@faker-js/faker'
+const { Schema } = mongoose
 
-class User extends Model {
-  toJSON() {
-    const attributes = { ...this.get() }
-    delete attributes.password
-    return attributes
-  }
-}
-
-User.init(
+const UserSchema = new Schema(
   {
-    id: {
-      primaryKey: true,
-      autoIncrement: true,
-      allowNull: false,
-      type: DataTypes.INTEGER,
-    },
     name: {
-      type: DataTypes.STRING,
-      allowNull: false,
+      type: String,
+      required: true,
     },
     email: {
-      type: DataTypes.STRING,
-      allowNull: false,
+      type: String,
+      required: true,
       unique: true,
     },
     password: {
-      type: DataTypes.STRING,
-      allowNull: false,
+      type: String,
+      required: true,
+      select: true,
     },
+    files: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'File',
+      },
+    ],
   },
   {
-    sequelize,
-    tableName: 'users',
-    hooks: {
-      beforeCreate(user) {
-        user.setDataValue('password', createPassword(user.dataValues.password))
-      },
-      beforeUpdate(user) {
-        if (user.dataValues.password) {
-          user.setDataValue(
-            'password',
-            createPassword(user.dataValues.password)
-          )
-        }
-      },
-    },
+    timestamps: true,
   }
 )
+
+UserSchema.pre('save', function (next) {
+  console.log(this)
+
+  // this.password = createPassword(this.password)
+
+  next()
+})
+
+const User = mongoose.model('User', UserSchema)
 
 export default User
