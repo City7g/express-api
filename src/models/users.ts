@@ -17,7 +17,6 @@ const UserSchema = new Schema(
     password: {
       type: String,
       required: true,
-      select: true,
     },
     files: [
       {
@@ -34,7 +33,7 @@ const UserSchema = new Schema(
 UserSchema.pre('save', function (next) {
   console.log(this)
 
-  // this.password = createPassword(this.password)
+  this.password = createPassword(this.password)
 
   next()
 })

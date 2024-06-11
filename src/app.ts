@@ -42,7 +42,6 @@ app.all('/*', (req, res) => {
 app.listen(8080, async () => {
   console.log('Start')
   try {
-    mongoose.set('debug', true)
     await mongoose.connect(process.env.DB_MONGO || 'mongo')
     console.log('Connection has been established successfully.')
   } catch (error) {

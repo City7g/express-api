@@ -23,7 +23,8 @@ dotenv.config()
 const router = Router()
 
 router.get('/', async (req, res) => {
-  res.json(await File.find().populate('user'))
+  const files = await File.find().populate('user', 'name')
+  res.json(files)
 })
 
 router.get('/:id', async (req, res) => {
@@ -60,10 +61,9 @@ router.post(
     })
 
     user.files.push(file.id)
+    user.save()
 
-    res.json({
-      file: req.file,
-    })
+    res.sendStatus(204)
   }
 )
 

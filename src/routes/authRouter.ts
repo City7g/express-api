@@ -23,7 +23,7 @@ router.post('/register', validateData(registerSchema), async (req, res) => {
 
   const newUser = await User.create(req.body)
 
-  res.status(201).json({ ...createTokens({ id: newUser.id }), newUser })
+  res.status(201).json({ ...createTokens({ id: newUser.id }), user: newUser })
 })
 
 router.post('/login', validateData(loginSchema), async (req, res) => {
@@ -91,8 +91,6 @@ router.post(
   authMiddleware(),
   validateData(updateUserSchema),
   async (req, res) => {
-    console.log(req.userInfo.id, req.body)
-
     const user = await User.findOne({
       email: req.body.email,
     })

@@ -1,8 +1,6 @@
 import bcrypt from 'bcrypt'
 
 const createPassword = (password: string): string => {
-  console.log(password)
-
   return bcrypt.hashSync(password, 10)
 }
 
